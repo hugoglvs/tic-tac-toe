@@ -79,13 +79,10 @@ form input[type="submit"]:hover {
     background-image: url('img/vide.png');
 }
 
-.no-click {
-    pointer-events: none;
-}
-
 /* Styling for the "X" and "O" symbols */
 .x {
     background-image: url('img/croix.png');
+    pointer-events: none;
 }
 .o {
     background-image: url('img/cercle.png');

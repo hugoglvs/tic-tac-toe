@@ -13,200 +13,196 @@ const player2 = {
 
 const dimension = 3
 //const turnAnnouncement = document.getElementById('turn-announcement');
-//turnAnnouncement.textContent = "${player1['name']}'s turn";
+//turnAnnouncement.textContent = `${player1['name']}'s turn`;
 const cells = document.querySelectorAll('.cell');
 let currentPlayer = player1; // TO-DO change the value of the variable currentPlayer according to the first player
+let winner = null;
+cells.forEach(cell => cell.addEventListener('click', handleCellClick));
 
-// Add event listeners to the cells
-cells.forEach(cell => {
-    cell.addEventListener('click', handleClick);
-});
-
-/** 
- * @param {MouseEvent} e
- * Handles the click event
- * @return {void}
- */
-function handleClick(e) {
-    const cell = e.target;
-    if (isEmpty(cell)) {
-      cell.classList.add(currentPlayer['symbol']);
-      cell.classList.add('no-click'); // disable clicks on the cell
-    }
-    if (checkWin()) {
-        alert(`${currentPlayer['name']} wins!`);
-        resetGame();
-    } else if (checkDraw()) {
-        alert("It's a draw!");
-        resetGame();
+async function handleCellClick(event) {
+    const clickedCell = event.target;
+    clickedCell.classList.add(currentPlayer['symbol']);
+    clickedCell.removeEventListener('click', handleCellClick);
+    if(checkForWinner() || isBoardFull()) {
+      await announce();
+      resetGame();
     } else {
-        currentPlayer = currentPlayer === player1 ? player2 : player1;
-        turnAnnouncement.textContent = `${currentPlayer['name']}'s turn`;
-        if (currentPlayer === player2 && player2['nature'] === 'computer') { // assuming player2 is the computer
-          // Disable clicks
-          document.body.classList.add('no-click');
-          setTimeout(() => {
-              // Computer makes a move
-              playMachine();
-              // Enable clicks after the computer's move
-              document.body.classList.remove('no-click');
-          }, 100); // adjust the delay as needed
-        }
-    }
+      switchTurns();
+  }
 }
 
 /**
- * Computer makes a move
- * @return {void}
+ * @param {Number} delay The delay in milliseconds so the symbol appears before the alert message
+ * Announces the winner
  */
-function playMachine(){
-    const index = findBestMove();
-    cells[index].classList.add(player2['symbol']);
-    cells[index].classList.add('no-click');
-    if (checkWin()) {
-        alert(`${player2['name']} wins!`);
-        resetGame();
-    } else if (checkDraw()) {
-        alert("It's a draw!");
-        resetGame();
+function announce(delay = 100) {
+  return new Promise((resolve) => {
+    if (winner !== null) {
+      setTimeout(() => {
+        alert(`${winner['name']} wins!`);
+        resolve();
+      }, delay);
     } else {
-        currentPlayer = player1;
-        turnAnnouncement.textContent = `${currentPlayer['name']}'s turn`;
+      setTimeout(() => {
+        alert('Draw!');
+      }, delay); // delay the alert message by 2 seconds
+      resolve();  
     }
+  });
+}
+
+function switchTurns() {
+  currentPlayer = currentPlayer === player1 ? player2 : player1;
+  if (currentPlayer['nature'] === 'computer') {
+    setTimeout(() => {computerPlay()}, 200);
+  }
 }
 
 /**
- * Looks for the best move for the computer
- * @return {number}
+ * Checks if there is a winner
+ * @returns {Boolean} True if there is a winner, false otherwise
  */
-function findBestMove() {
-    const emptyCells = [...cells].filter(isEmpty);
-    const bestMoves = emptyCells.map(cell => {
-        const index = [...cells].indexOf(cell);
-        const score = minimax(index, player2['symbol']);
-        return { index, score };
-    });
-    const bestScore = Math.max(...bestMoves.map(move => move.score));
-    const bestMovesWithBestScore = bestMoves.filter(move => move.score === bestScore);
-    const randomIndex = Math.floor(Math.random() * bestMovesWithBestScore.length);
-    return bestMovesWithBestScore[randomIndex].index;
-}
-
-/**
- * @param {number} index
- * @param {string} symbol
- * @return {number}
- */
-function minimax(index, symbol) {
-    const newCells = [...cells];
-    newCells[index].classList.add(symbol);
-    if (checkWin()) {
-        return symbol === player2['symbol'] ? 1 : -1;
-    } else if (checkDraw()) {
-        return 0;
-    } else {
-        const emptyCells = newCells.filter(isEmpty);
-        const scores = emptyCells.map(cell => {
-            const index = [...cells].indexOf(cell);
-            const score = minimax(index, symbol === player1['symbol'] ? player2['symbol'] : player1['symbol']);
-            return score;
-        });
-        return symbol === player2['symbol'] ? Math.max(...scores) : Math.min(...scores);
+function checkForWinner() {
+  const winningCombinations = getWinningCombinations();
+  winningCombinations.forEach(combination => {
+    if (combination.every(index => cells[index].classList.contains(player1['symbol']))) {
+      winner = player1;
+    } else if (combination.every(index => cells[index].classList.contains(player2['symbol']))) {
+      winner = player2;
     }
+  });
+  return winner !== null; // if winner is not null, then there is a winner
 }
 
 /**
- * @param {HTMLElement} cell
- * Checks if a cell is empty
- * @return {boolean}
- */
-function isEmpty(cell) {
-    return !(cell.classList.contains(player1['symbol']) || cell.classList.contains(player2['symbol']));
-}
-
-/** 
- * Checks if the game is won
- * @return {boolean}
- */
-function checkWin() {
-    const rows = getRows();
-    const columns = getColumns();
-    const diagonals = getDiagonals();
-    const lines = [...rows, ...columns, ...diagonals];
-    return lines.some(line => {
-        return line.every(cell => {
-            return cell.classList.contains(currentPlayer['symbol']);
-        });
-    });
+ * Returns an array of all the winning combinations
+ * @returns {Array} Array of winning combinations
+ * @example
+ * // returns [[0, 1, 2], [3, 4, 5], [6, 7, 8],
+ * //          [0, 3, 6], [1, 4, 7], [2, 5, 8],
+ * //          [0, 4, 8], [2, 4, 6]]
+ * @example
+ * // returns [[0, 1, 2, 3], [4, 5, 6, 7], [8, 9, 10 ,11], [12, 13, 14, 15],
+ * //          [0, 4, 8, 12], [1, 5, 9, 13], [2, 6, 10, 14], [3, 7, 11, 15],
+ * //          [0, 5, 10, 15], [3, 6, 9, 12]]
+ */ 
+function getWinningCombinations() {
+  const winningCombinations = [];
+  const winningRows = getWinningRows();
+  const winningColumns = getWinningColumns();
+  const winningDiagonals = getWinningDiagonals();
+  winningCombinations.push(...winningRows, ...winningColumns, ...winningDiagonals);
+  return winningCombinations;
 }
 
 /**
- * @return {Array<Array<HTMLElement>>}
- */
-function getRows() {
-    const rows = [];
-    for (let i = 0; i < cells.length; i += dimension) {
-        const row = [];
-        for (let j = i; j < i + dimension; j++) {
-            row.push(cells[j]);
-        }
-        rows.push(row);
+ * Returns an array of all the winning rows
+ * @returns {Array} Array of winning rows
+ * @example
+ * // returns [[0, 1, 2], [3, 4, 5], [6, 7, 8]]
+ * @example
+ * // returns [[0, 1, 2, 3], [4, 5, 6, 7], [8, 9, 10 ,11], [12, 13, 14, 15]]
+ */ 
+function getWinningRows() {
+  const winningRows = [];
+  for (let i = 0; i < dimension; i++) {
+    const row = [];
+    for (let j = 0; j < dimension; j++) {
+      row.push(i * dimension + j);
     }
-    return rows;
+    winningRows.push(row);
+  }
+  return winningRows;
 }
 
 /**
- * @return {Array<Array<HTMLElement>>}
+ * Returns an array of all the winning columns
+ * @returns {Array} Array of winning columns
+ * @example
+ * // returns [[0, 3, 6], [1, 4, 7], [2, 5, 8]]
+ * @example 
+ * // returns [[0, 4, 8, 12], [1, 5, 9, 13], [2, 6, 10, 14], [3, 7, 11, 15]]
  */
-function getColumns() {
-    const columns = [];
-    for (let i = 0; i < dimension; i++) {
-        const column = [];
-        for (let j = i; j < cells.length; j += dimension) {
-            column.push(cells[j]);
-        }
-        columns.push(column);
+function getWinningColumns() {
+  const winningColumns = [];
+  for (let i = 0; i < dimension; i++) {
+    const column = [];
+    for (let j = 0; j < dimension; j++) {
+      column.push(i + j * dimension);
     }
-    return columns;
+    winningColumns.push(column);
+  }
+  return winningColumns;
 }
 
 /**
- * @return {Array<Array<HTMLElement>>}
+ * Returns an array of all the winning diagonals
+ * @returns {Array} Array of winning diagonals
+ * @example
+ * // returns [[0, 4, 8], [2, 4, 6]]
+ * @example
+ * // returns [[0, 5, 10, 15], [3, 6, 9, 12]]
  */
-function getDiagonals() {
-    const diagonals = [];
-    const diagonal1 = [];
-    const diagonal2 = [];
-    for (let i = 0; i < cells.length; i += dimension + 1) {
-        diagonal1.push(cells[i]);
-    }
-    diagonals.push(diagonal1);
-    for (let i = dimension - 1; i < cells.length - 1; i += dimension - 1) {
-        diagonal2.push(cells[i]);
-    }
-    diagonals.push(diagonal2);
-    return diagonals;
+function getWinningDiagonals() {
+  const winningDiagonals = [];
+  const diagonal1 = [];
+  const diagonal2 = [];
+  for (let i = 0; i < dimension; i++) {
+    diagonal1.push(i * dimension + i);
+    diagonal2.push((dimension - 1) * (i + 1));
+  }
+  winningDiagonals.push(diagonal1, diagonal2);
+  return winningDiagonals;
 }
 
+/**
+ * Checks if the board is full
+ */
+function isBoardFull() {
+  return [...cells].every(cell => !isEmpty(cell));
+}
 
 /**
- * Checks if the game is a draw
- * @return {boolean}
+ * Checks if the cell is empty
+ * @param {Element} cell The cell to be checked
+ * @returns {Boolean} True if the cell is empty, false otherwise
  */
-function checkDraw() {
-    return [...cells].every(cell => {
-        return cell.classList.contains(player1['symbol']) || cell.classList.contains(player2['symbol']);
-    });
+function isEmpty(cell){
+  return !(cell.classList.contains(player1['symbol']) || cell.classList.contains(player2['symbol']));
 }
 
 /**
  * Resets the game
- * @return {void}
- */
+ */ 
 function resetGame() {
-    cells.forEach(cell => {
-        cell.classList.remove(player1['symbol'], player2['symbol']);
-        cell.classList.remove('no-click');
-    });
-    currentPlayer = player1;
+  cells.forEach(cell => {
+    cell.classList.remove(player1['symbol']);
+    cell.classList.remove(player2['symbol']);
+    cell.addEventListener('click', handleCellClick);
+  });
+  winner = null;
+  currentPlayer = player1; // TO-DO change the value of the variable currentPlayer according to the first player
+}
+
+/**
+ * Simulates the computer's turn
+ */
+function computerPlay() {
+  // Get all cells that are not yet clicked
+  const availableCells = Array.from(cells).filter(cell => isEmpty(cell));
+
+  // Select the cell with the highest score
+  const bestMove = minimax(availableCells, currentPlayer, currentPlayer, 0).index;
+  const targetCell = cells[bestMove];
+
+  // Simulate a click on the random cell
+  handleCellClick({ target: targetCell });
+}
+
+// TO-DO implement the minimax algorithm
+function minimax(node, depth, isMaximizing) {
+  if (checkForWinner()) {
+    return 1;
+  }
+  
 }

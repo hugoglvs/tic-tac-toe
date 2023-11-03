@@ -16,7 +16,6 @@ $cells = $dimension * $dimension;
         <title>Tic Tac Toe</title>
         <meta charset="utf-8">
         <link rel="stylesheet" href="style.css">
-        <script type="text/javascript" src="tic-tac-toe.js"></script>
     </head>
     <body>
         <span id=turn-announcement></span>
@@ -27,6 +26,7 @@ $cells = $dimension * $dimension;
                 } 
             ?>
         </div>
-        
+                <script type="text/javascript" src="tic-tac-toe.js"></script>
+
     </body>
 </html>

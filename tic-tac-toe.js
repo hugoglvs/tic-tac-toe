@@ -185,12 +185,12 @@ return !(cell.classList.contains(player1['symbol']) || cell.classList.contains(p
 * Resets the game
 */ 
 function resetGame() {
-cells.forEach(cell => {
-  cell.classList.remove(player1['symbol']);
-  cell.classList.remove(player2['symbol']);
-  cell.addEventListener('click', handleCellClick);
-});
-currentPlayer = player1; // TO-DO change the value of the variable currentPlayer according to the first player
+  cells.forEach(cell => {
+    cell.classList.remove(player1['symbol']);
+    cell.classList.remove(player2['symbol']);
+    cell.addEventListener('click', handleCellClick);
+  });
+  currentPlayer = player1; // TO-DO change the value of the variable currentPlayer according to the first player
 }
 
 /**
@@ -204,5 +204,6 @@ const availableCells = Array.from(cells).filter(cell => isEmpty(cell));
 const randomCell = availableCells[Math.floor(Math.random() * availableCells.length)];
 
 // Simulate a click on the random cell
-handleCellClick({ target: randomCell });
+handleCellClick({ target: randomCell }); // this is the same as calling handleCellClick(event) where event is an object with a target property
 }
+

@@ -58,13 +58,8 @@ form input[type="submit"]:hover {
 }
 
 /* Styling for the game board */
-.board {
-    display: flex;
-    flex-wrap: wrap;
-    width: 304px;
-    height: 304px;
+table {
     margin: 30px auto;
-    border: 2px solid black;
 }
 
 /* Styling for each cell in the game board */
@@ -88,3 +83,13 @@ form input[type="submit"]:hover {
     background-image: url('img/cercle.png');
 }
 
+footer {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+}
+
+footer p {
+    padding-left: 20px;
+    text-align: center;
+}

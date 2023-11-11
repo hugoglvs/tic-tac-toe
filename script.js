@@ -1,18 +1,32 @@
 $(document).ready(function () {
-    const player = 'X';
-    const computer = 'O';
-    let firstPlayer = player;
-    let currentPlayer = firstPlayer;
+    const player1 = {
+        name: 'Player 1',
+        nature: 'human',
+        symbol: 'X'
+    }
+    const player2 = {
+        name: 'Player 2',
+        nature: 'computer',
+        symbol: 'O'
+    }
     
+    const dimension = 3;
+    const combinationLength = 3;
+    let firstPlayer = player1;
 
-    // Use the combinations.js file
-    const dimension = 3; // Assuming a 3x3 board
-    let gameBoard = Array(dimension * dimension).fill(null);
-    const combinationLength = 3; // Assuming a winning combination length of 3
+    // Game settings
+    let currentPlayer = firstPlayer;
     const winningCombinations = getWinningCombinations(dimension, combinationLength);
+    let gameBoard = Array(dimension * dimension).fill(null);
+    let gameOver = false;
 
+    createBoard();
+    startGame();
 
     function createBoard() {
+        console.log("Creating board")
+        $('#turn-announcement').text(`${currentPlayer.name}'s turn`);
+        $('#reset').on('click', reset);
         let cells = '';
         for (let i = 0; i < dimension; i++) {
             cells += '<tr>';
@@ -24,13 +38,7 @@ $(document).ready(function () {
         $('table').append(cells);
     }
     
-    createBoard();
-
-    // If the first player is the computer, it makes a move
-    if (currentPlayer === computer) {
-        const computerMove = getComputerMove();
-        makeMove(computerMove, computer);
-    }
+    
 
     // Event listener for cell click
     $('.cell').on('click', function () {
@@ -38,56 +46,76 @@ $(document).ready(function () {
 
         // Check if the cell is empty
         if (gameBoard[index] === null) {
-            // Player's move
-            makeMove(index, player);
+            makeMove(index, currentPlayer);
+            if (checkWin(currentPlayer)) {
+                gameOverAlert(`${currentPlayer.name} win!`, 100);
+            } else if (isBoardFull()) {
+                gameOverAlert('It\'s a tie!', 100);
+            }  
+            switchTurn();
+            if (currentPlayer.nature === 'computer' && !gameOver){
+                // Computer's move
+                const computerMove = getComputerMove();
+                makeMove(computerMove, currentPlayer);
 
-            // Check if there's a winner
-            if (checkWin(player)) {
-                alert('Player wins!');
-                return;
-            }
-
-            // Check if the board is full (draw)
-            if (isBoardFull()) {
-                alert('It\'s a draw!');
-                return;
-            }
-
-            // Computer's move
-            const computerMove = getComputerMove();
-            makeMove(computerMove, computer);
-
-            // Check if there's a winner after the computer's move
-            if (checkWin(computer)) {
-                alert('Computer wins!');
-                return;
-            }
-
-            // Check if the board is full (draw) after the computer's move
-            if (isBoardFull()) {
-                alert('It\'s a draw!');
-            }
+                if (checkWin(currentPlayer)) {
+                    gameOverAlert(`${currentPlayer.name} wins!`, 100);
+                }
+                else if (isBoardFull()) {
+                    gameOverAlert('It\'s a tie!', 100);
+                }
+                switchTurn();
+        }
         }
     });
 
-    // Function to handle player and computer moves
-    function makeMove(index, symbol) {
-        gameBoard[index] = symbol;
-        $(`.cell[data-index="${index}"]`).text(symbol);
+    function gameOverAlert(message, delay) {
+        gameOver = true;
+        // timeOut to allow the last move to be displayed
+        setTimeout(function() {
+            alert(message);
+            reset();
+        }, delay);
     }
 
-    // Function to check for a win
-    function checkWin(symbol) {
+    function startGame() {
+        let currentPlayer = firstPlayer;
+        if (currentPlayer.nature === 'computer') {
+            const computerMove = getComputerMove();
+            makeMove(computerMove, currentPlayer);
+            switchTurn();
+        }
+    }
+
+    function reset() {
+        gameBoard = Array(dimension * dimension).fill(null);
+        $('.cell').removeClass(player1.symbol);
+        $('.cell').removeClass(player2.symbol);
+        firstPlayer = firstPlayer === player1 ? player2 : player1;
+        gameOver = false;
+        startGame();
+    }
+    
+    function switchTurn() {
+        currentPlayer = currentPlayer === player1 ? player2 : player1;
+        $('#turn-announcement').text(`${currentPlayer.name}'s turn`);
+    }
+
+    function makeMove(index, player) {
+        gameBoard[index] = player.symbol;
+        $(`.cell[data-index="${index}"]`).addClass(player.symbol);
+    }
+
+    function checkWin(player) {
         return winningCombinations.some(combination => 
-            combination.every(cell => gameBoard[cell] === symbol));
+            combination.every(cell => gameBoard[cell] === player.symbol));
+
     }
 
-    // Function to check if the board is full (tie)
     function isBoardFull() {
         return gameBoard.every(cell => cell !== null);
     }
 
-// Function to get the computer's move using the minimax algorithm
 function getComputerMove() {
     // array.reduce : https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/Reduce
     const emptyCells = gameBoard.reduce((acc, cell, index) => {
@@ -103,7 +131,7 @@ function getComputerMove() {
 
     for (const index of emptyCells) {
         // Make the move
-        gameBoard[index] = computer;
+        gameBoard[index] = player2.symbol;
 
         // Evaluate the score for this move
         const score = minimax(gameBoard, 0, false);
@@ -123,25 +151,21 @@ function getComputerMove() {
 
 // Minimax algorithm
 function minimax(board, depth, isMaximizing) {
-    const scores = {
-        X: -1, // Player's score
-        O: 1,  // Computer's score
-        tie: 0 // Score for a tie
-    };
 
-    // Check for a win or draw
-    const winner = checkWin(computer) ? computer : (checkWin(player) ? player : null);
-    if (winner !== null) {
-        return scores[winner];
+    const winner = checkWin(player2) ? player2 : (checkWin(player1) ? player1 : null);
+    if (checkWin(player2)) {
+        return 1;
+    } else if (checkWin(player1)) {
+        return -1;
     } else if (isBoardFull(board)) {
-        return scores.tie;
+        return 0; 
     }
 
     if (isMaximizing) {
         let maxScore = -Infinity;
         for (let i = 0; i < board.length; i++) {
             if (board[i] === null) {
-                board[i] = computer;
+                board[i] = player2.symbol;
                 maxScore = Math.max(maxScore, minimax(board, depth + 1, false));
                 board[i] = null;
             }
@@ -151,7 +175,7 @@ function minimax(board, depth, isMaximizing) {
         let minScore = Infinity;
         for (let i = 0; i < board.length; i++) {
             if (board[i] === null) {
-                board[i] = player;
+                board[i] = player1.symbol;
                 minScore = Math.min(minScore, minimax(board, depth + 1, true));
                 board[i] = null;
             }

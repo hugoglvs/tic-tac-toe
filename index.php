@@ -4,6 +4,7 @@
         <title>Tic Tac Toe</title>
         <meta charset="utf-8">
         <link rel="stylesheet" href="style.css">
+        <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
     </head>
     <body>
         <form action="morpion.php" method="POST">
@@ -12,8 +13,8 @@
             <input type="number" name="dimension" id="dimension" min="3" max="20" value="3">
             </div>
             <div>
-            <label for="number">Nombre de cellules pour gagner</label>
-            <input type="number" name="number" id="number" min="3" max="20" value="3">
+            <label for="combinationLength">Nombre de cellules pour gagner</label>
+            <input type="number" name="combinationLength" id="combinationLength" min="3" max="20" value="3">
             </div>
             <div>
             <label for="player1">Joueur 1</label>
@@ -39,28 +40,32 @@
             </div>
             <input type="submit" value="Jouer">
         </form>
-        <script>
-            const opponentSelect = document.getElementById('opponent');
-            const player2Div = document.getElementById('player2');
-            const firstPlayerSelect = document.getElementById('first-player');
-            firstPlayerSelect.textContent = 'Ordinateur';
-            opponentSelect.addEventListener('change', () => {
-                if (opponentSelect.value === 'player') {
-                    player2Div.style.display = 'block';
-                    firstPlayerSelect.textContent = 'Joueur 2';
-                } else {
-                    player2Div.style.display = 'none';
-                    firstPlayerSelect.textContent = 'Ordinateur';
-                }
-            });
 
-            const numberInput = document.getElementById('number');
-            const dimensionInput = document.getElementById('dimension');
-            numberInput.addEventListener('change', () => {
-                if (numberInput.value > dimensionInput.value) {
-                    alert('Le nombre de cellules pour gagner doit être inférieur ou égal à la dimension du jeu.');
-                    numberInput.value = dimensionInput.value;
-                }
+        <script>
+            $(document).ready(function() {
+                const opponentSelect = $('#opponent');
+                const player2Div = $('#player2');
+                const firstPlayerSelect = $('#first-player');
+
+                firstPlayerSelect.text('Ordinateur');
+                opponentSelect.change(() => {
+                    if (opponentSelect.val() === 'player') {
+                        player2Div.show();
+                        firstPlayerSelect.text('Joueur 2');
+                    } else {
+                        player2Div.hide();
+                        firstPlayerSelect.text('Ordinateur');
+                    }
+                });
+
+                const combinationLengthInput = $('#combinationLength');
+                const dimensionInput = $('#dimension');
+                combinationLengthInput.change(() => {
+                    if (combinationLengthInput.val() > dimensionInput.val()) {
+                        alert('Le nombre de cellules pour gagner doit être inférieur ou égal à la dimension du jeu.');
+                        combinationLengthInput.val(dimensionInput.val());
+                    }
+                });
             });
         </script>
     </body>

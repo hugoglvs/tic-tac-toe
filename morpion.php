@@ -1,19 +1,13 @@
 <?php
-
-$player1 = array(
-    'name' => isset($_POST['player1_name']) ? $_POST['player1_name'] : 'Player 1',
-    'symbol' => isset($_POST['player1_symbol']) ? $_POST['player1_symbol'] : 'X',
-    'nature' => isset($_POST['player1_nature']) ? $_POST['player1_nature'] : 'human'
-);
-$player2 = array(
-    'name' => isset($_POST['player2_name']) ? $_POST['player2_name'] : 'Player 2',
-    'symbol' => isset($_POST['player2_symbol']) ? $_POST['player2_symbol'] : 'O',
-    'nature' => isset($_POST['player2_nature']) ? $_POST['player2_nature'] : 'computer'
-); 
-$dimension = isset($_POST['dimension']) ? $_POST['dimension'] : 3;
-$combinationLength = isset($_POST['number']) ? $_POST['number'] : 3;
-
+// Juste faire apparaitre ça ça fait bugger...
+$dimension = isset($_POST['dimension']) && $_POST['dimension'] !== "" ? $_POST['dimension'] : 3;
+$combinationLength = isset($_POST['combinationLength']) && $_POST['combinationLength'] !== "" ? $_POST['combinationLength'] : 3;
+$player1name = isset($_POST['player1name']) && $_POST['player1name'] !== "" ? $_POST['player1name'] : 'Player 1';
+$player2nature = isset($_POST['player2nature']) && $_POST['player2nature'] !== "" ? $_POST['player2nature'] : 'computer';
+$player2name = isset($_POST['player2name']) && $_POST['player2name'] !== "" ? $_POST['player2name'] : 'Player 2';
+$firstPlayer = isset($_POST['first']) && $_POST['first'] !== "" ? $_POST['first'] : 'player1';
 ?>
+
 <!DOCTYPE html>
 <html lang="fr-FR">
     <head>
@@ -25,26 +19,27 @@ $combinationLength = isset($_POST['number']) ? $_POST['number'] : 3;
         <script>
             // Variables depending on the form input
             const player1 = {
-                name: '<?= $player1['name'] ?>',
+                name: '<?= $player1name ?>',
                 nature: 'human',
                 symbol: 'X'
             }
             const player2 = {
-                name: '<?= $player2['name'] ?>',
-                nature: '<?= $player2['nature'] ?>',
+                name: '<?= $player2name ?>',
+                nature: '<?= $player2nature ?>',
                 symbol: 'O'
             }
             
             const dimension = <?= $dimension ?>;
             const combinationLength = <?= $combinationLength ?>;
-            let firstPlayer = player1;
+            let firstPlayer = <?= $firstPlayer ?>;
         </script>
     </head>
     <body>
         <span id=turn-announcement></span>
         <table></table>
         <script src="script.js"></script>
-        <button id="reset">Reset</button>
+        <button id="reset">Réinitialiser</button>
+        <a href="index.php">Retour</a>
         
 
     </body>

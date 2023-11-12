@@ -1,18 +1,5 @@
 $(document).ready(function () {
-    const player1 = {
-        name: 'Player 1',
-        nature: 'human',
-        symbol: 'X'
-    }
-    const player2 = {
-        name: 'Player 2',
-        nature: 'computer',
-        symbol: 'O'
-    }
     
-    const dimension = 3;
-    const combinationLength = 3;
-    let firstPlayer = player1;
 
     // Game settings
     let currentPlayer = firstPlayer;
@@ -22,6 +9,36 @@ $(document).ready(function () {
 
     createBoard();
     startGame();
+
+
+    // Main script, handles the game logic
+    $('.cell').on('click', function () {
+        const index = $(this).data('index');
+
+        if (gameBoard[index] === null) {
+            makeMove(index, currentPlayer);
+            if (checkWin(currentPlayer)) {
+                sendGameOverAlert(`${currentPlayer.name} win!`, 100);
+            } else if (isBoardFull()) {
+                sendGameOverAlert('It\'s a tie!', 100);
+            }  
+            switchTurn();
+            if (currentPlayer.nature === 'computer' && !gameOver){
+                // Computer's move
+                const computerMove = getComputerMove();
+                makeMove(computerMove, currentPlayer);
+
+                if (checkWin(currentPlayer)) {
+                    sendGameOverAlert(`${currentPlayer.name} wins!`, 100);
+                }
+                else if (isBoardFull()) {
+                    sendGameOverAlert('It\'s a tie!', 100);
+                }
+                switchTurn();
+        }
+        }
+    });
+
 
     function createBoard() {
         console.log("Creating board")
@@ -38,38 +55,8 @@ $(document).ready(function () {
         $('table').append(cells);
     }
     
-    
 
-    // Event listener for cell click
-    $('.cell').on('click', function () {
-        const index = $(this).data('index');
-
-        // Check if the cell is empty
-        if (gameBoard[index] === null) {
-            makeMove(index, currentPlayer);
-            if (checkWin(currentPlayer)) {
-                gameOverAlert(`${currentPlayer.name} win!`, 100);
-            } else if (isBoardFull()) {
-                gameOverAlert('It\'s a tie!', 100);
-            }  
-            switchTurn();
-            if (currentPlayer.nature === 'computer' && !gameOver){
-                // Computer's move
-                const computerMove = getComputerMove();
-                makeMove(computerMove, currentPlayer);
-
-                if (checkWin(currentPlayer)) {
-                    gameOverAlert(`${currentPlayer.name} wins!`, 100);
-                }
-                else if (isBoardFull()) {
-                    gameOverAlert('It\'s a tie!', 100);
-                }
-                switchTurn();
-        }
-        }
-    });
-
-    function gameOverAlert(message, delay) {
+    function sendGameOverAlert(message, delay) {
         gameOver = true;
         // timeOut to allow the last move to be displayed
         setTimeout(function() {
@@ -79,10 +66,13 @@ $(document).ready(function () {
     }
 
     function startGame() {
-        let currentPlayer = firstPlayer;
+        if (currentPlayer !== firstPlayer) { 
+            switchTurn();
+        }
         if (currentPlayer.nature === 'computer') {
             const computerMove = getComputerMove();
             makeMove(computerMove, currentPlayer);
+            console.log("Star game");
             switchTurn();
         }
     }
@@ -99,6 +89,7 @@ $(document).ready(function () {
     function switchTurn() {
         currentPlayer = currentPlayer === player1 ? player2 : player1;
         $('#turn-announcement').text(`${currentPlayer.name}'s turn`);
+        console.log("Switching turn: " + currentPlayer.name + "'s turn")
     }
 
     function makeMove(index, player) {

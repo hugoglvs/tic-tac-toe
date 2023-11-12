@@ -7,33 +7,33 @@
         <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
     </head>
     <body>
-        <form action="morpion.php" method="POST">
-            <div>
+        <form id="gameSettingsForm" action="morpion.php" method="POST">
+            <div class="warning">
             <label for="dimension">Dimension du tableau de jeu</label>
             <input type="number" name="dimension" id="dimension" min="3" max="20" value="3">
             </div>
-            <div>
+            <div class="warning">
             <label for="combinationLength">Nombre de cellules pour gagner</label>
             <input type="number" name="combinationLength" id="combinationLength" min="3" max="20" value="3">
             </div>
             <div>
-            <label for="player1">Joueur 1</label>
-            <input type="text" name="player1" id="player1">
+            <label for="player1name">Joueur 1</label>
+            <input type="text" name="player1name" id="player1name">
             </div>
             <div>
-            <label for="opponent">Adversaire</label>
-            <select name="opponent" id="opponent" required>
+            <label for="player2nature">Adversaire</label>
+            <select name="player2nature" id="player2nature" required>
                 <option value="computer">Ordinateur</option>
                 <option value="player">Joueur</option>
             </select>
             </div>
             <div id="player2" style="display:none;">
-                <label for="player2">Joueur 2</label>
-                <input type="text" name="player2" id="player2">
+                <label for="player2name">Joueur 2</label>
+                <input type="text" name="player2name" id="player2name" value="Player 2">
             </div>
             <div>
-            <label for="first">Premier joueur</label>
-            <select name="first" id="first" required>
+            <label for="firstPlayer">Premier joueur</label>
+            <select name="firstPlayer" id="firstPlayer" required>
                 <option value="player1">Joueur 1</option>
                 <option id="first-player" value="player2"></option>
             </select>
@@ -43,7 +43,11 @@
 
         <script>
             $(document).ready(function() {
-                const opponentSelect = $('#opponent');
+                // Hide warning divs because if its values are changed,
+                // the game won't work properly
+                $('.warning').hide();
+
+                const opponentSelect = $('#player2nature');
                 const player2Div = $('#player2');
                 const firstPlayerSelect = $('#first-player');
 

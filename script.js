@@ -42,7 +42,7 @@ $(document).ready(function () {
 
     function createBoard() {
         console.log("Creating board")
-        $('#turn-announcement').text(`${currentPlayer.name}'s turn`);
+        $('#turn-announcement').text(`Tour de ${currentPlayer.name}`);
         $('#reset').on('click', reset);
         let cells = '';
         for (let i = 0; i < dimension; i++) {
@@ -87,7 +87,7 @@ $(document).ready(function () {
     
     function switchTurn() {
         currentPlayer = currentPlayer === player1 ? player2 : player1;
-        $('#turn-announcement').text(`${currentPlayer.name}'s turn`);
+        $('#turn-announcement').text(`Tour de ${currentPlayer.name}`);
     }
 
     function makeMove(index, player) {
@@ -141,9 +141,6 @@ function getComputerMove() {
 
 // Minimax algorithm
 function minimax(board, depth, isMaximizing) {
-    // We don't use depth in this implementation
-    // because 
-
     const winner = checkWin(player2) ? player2 : (checkWin(player1) ? player1 : null);
     if (checkWin(player2)) {
         return 1;

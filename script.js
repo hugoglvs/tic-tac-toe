@@ -96,7 +96,9 @@ $(document).ready(function () {
     }
 
     function checkWin(player) {
+        // array.some : https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/Some
         return winningCombinations.some(combination => 
+            // array.every : https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/Every
             combination.every(cell => gameBoard[cell] === player.symbol));
     }
 
@@ -139,6 +141,8 @@ function getComputerMove() {
 
 // Minimax algorithm
 function minimax(board, depth, isMaximizing) {
+    // We don't use depth in this implementation
+    // because 
 
     const winner = checkWin(player2) ? player2 : (checkWin(player1) ? player1 : null);
     if (checkWin(player2)) {

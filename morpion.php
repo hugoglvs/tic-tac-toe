@@ -1,11 +1,10 @@
 <?php
-// Juste faire apparaitre ça ça fait bugger...
 $dimension = isset($_POST['dimension']) && $_POST['dimension'] !== "" ? $_POST['dimension'] : 3;
 $combinationLength = isset($_POST['combinationLength']) && $_POST['combinationLength'] !== "" ? $_POST['combinationLength'] : 3;
 $player1name = isset($_POST['player1name']) && $_POST['player1name'] !== "" ? $_POST['player1name'] : 'Player 1';
 $player2nature = isset($_POST['player2nature']) && $_POST['player2nature'] !== "" ? $_POST['player2nature'] : 'computer';
 $player2name = isset($_POST['player2name']) && $_POST['player2name'] !== "" ? $_POST['player2name'] : 'Player 2';
-$firstPlayer = isset($_POST['first']) && $_POST['first'] !== "" ? $_POST['first'] : 'player1';
+$firstPlayer = isset($_POST['firstPlayer']) && $_POST['firstPlayer'] !== "" ? $_POST['firstPlayer'] : 'player1';
 ?>
 
 <!DOCTYPE html>

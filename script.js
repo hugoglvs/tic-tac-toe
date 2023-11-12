@@ -72,7 +72,6 @@ $(document).ready(function () {
         if (currentPlayer.nature === 'computer') {
             const computerMove = getComputerMove();
             makeMove(computerMove, currentPlayer);
-            console.log("Star game");
             switchTurn();
         }
     }
@@ -89,7 +88,6 @@ $(document).ready(function () {
     function switchTurn() {
         currentPlayer = currentPlayer === player1 ? player2 : player1;
         $('#turn-announcement').text(`${currentPlayer.name}'s turn`);
-        console.log("Switching turn: " + currentPlayer.name + "'s turn")
     }
 
     function makeMove(index, player) {
@@ -100,7 +98,6 @@ $(document).ready(function () {
     function checkWin(player) {
         return winningCombinations.some(combination => 
             combination.every(cell => gameBoard[cell] === player.symbol));
-
     }
 
     function isBoardFull() {
